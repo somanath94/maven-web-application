@@ -1,0 +1,64 @@
+pipeline {
+agent any
+triggers{
+pollSCM('* * * * *')
+}
+options{
+timestamps()
+buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '5', numToKeepStr: '5'))
+}
+
+tools {
+maven "maven3.8.1"
+}
+
+stages {
+    stage('CheckoutCode'){
+    steps{
+        git branch: 'development', credentialsId: '3deb12fb-501f-4fbd-9e26-57a7c5b858c4', url: 'https://github.com/somanath94/maven-web-application.git'
+   
+    }    
+    }
+   stage('Build') {
+   steps{
+     sh "mvn clean package"  
+   }    
+   }
+ stage ('ExecuteSonarQubeReport'){
+ steps{
+ sh "mvn clean sonar:sonar" 	 
+ }
+ }
+stage ('UploadArtifactintoNexus'){
+ steps{
+ sh "mvn clean deploy" 	 
+ }
+}
+stage ('DeployAppintoTomcat'){
+ steps { 
+ sshagent(['195f043c-1a56-43be-8c6e-2b22a06ed788']) {
+ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@100.24.7.211:/opt/apache-tomcat-9.0.46/webapps/"   
+ }
+ }
+ }
+    }
+post{
+
+ success{
+ emailext body: '''Build is over -sucess!!
+
+
+Regards
+Somanath H M''', subject: 'Build is over- sucess', to: 'hm.somu67@gmail.com'
+ }
+ failure{
+ emailext body: '''Build is over-Failed !!
+
+
+Regards
+Somanath H M''', subject: 'Build is over-Failed', to: 'hm.somu67@gmail.com'
+ 
+ }
+
+}    
+}

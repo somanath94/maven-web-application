@@ -25,7 +25,7 @@ stage('UploadArctifactIntoNexus')
 
 stage('DeployAppIntoTomcatServer'){
  sshagent(['c00595ae-6d80-4938-a41e-cf3c55674816']) {
-  sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.233.212.189:/opt/apache-tomcat-9.0.46/webapps/"
+  // ...
  }
 }
 stage('SendEMailNotification'){

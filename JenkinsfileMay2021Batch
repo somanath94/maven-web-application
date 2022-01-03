@@ -20,7 +20,7 @@ sh "${mavenHome}/bin/mvn sonar:sonar"
 
 stage('UploadArctifactIntoNexus')
 {
-sh "${mavenHome}/bin/mvn deploy"
+..//
 }
 
 stage('DeployAppIntoTomcatServer'){
